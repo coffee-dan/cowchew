@@ -1,12 +1,16 @@
 #!/bin/sh
-face=$(cowsay -l | tail -n +2 | tr ' ' '\n' | gum choose)
+cow_face_list=($(cowsay -l | tail -n +2 | tr ' ' '\n'))
 
+# generate random index
+index=$(( $RANDOM % ${#cow_face_list[@]} ))
 
+gum confirm "Are you feeling lucky?" && cowsay -f "${cow_face_list[$index]}" "$(fortune)" && exit
 
-if [[ -t 0 ]]; then
-  text=$0
-else
-  text=$(gum write --value "$(fortune)" --placeholder "edit or CTRL-D to finish")
+face=$(printf '%s\n' "${cow_face_list[@]}" | gum choose)
+
+text=$(<&0)
+if [ -z "$text" ]; then
+  text=$(gum write --placeholder "edit or CTRL-D to finish")
 fi
 
 cowsay -f "$face" "$text"
